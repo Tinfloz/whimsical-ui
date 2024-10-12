@@ -6,23 +6,28 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { getConfig } from "@/utils/get.token";
+import axios from "axios";
 
 interface IPainting {
     price: string
-    name: string
-    description: string
-    dimensions:string
+    paintingName: string
+    paintingDesc: string
+    dimension:string,
+    medium:string, 
 }
 
 const CreatePainting = () => {
 
     const [files, setFiles] = useState<string>();
+    const [loading, setLoading] = useState<boolean>();
 
     const [painting, setPainting] = useState<IPainting>({
         price: "",
-        name: "",
-        description: "",
-        dimensions: ""
+        paintingName: "",
+        paintingDesc: "",
+        dimension: "",
+        medium:""
     })
 
     const handlePaintingChange = (e:ChangeEvent<HTMLInputElement>) => {
@@ -33,16 +38,36 @@ const CreatePainting = () => {
     }
 
     const handleCreate = async () => {
+        setLoading(true)
         const newPainting = {...painting, painting:files}
-        toast("Created successfully!", {
-            description:`Created at ${new Date()}`, 
-            action:{
-                label:"Undo", 
-                onClick:() => console.log("Undo")
-            }
-        })
-        console.log(newPainting);
-        // TODO: Call API to create painting
+        try {
+            const response = (await axios.post("http://localhost:5001/api/v1/content/create/painting", newPainting, getConfig())).data.message;
+            toast(response, {
+                description:`Created at ${new Date()}`, 
+                action:{
+                    label:"Undo", 
+                    onClick:() => console.log("Undo")
+                }
+            })
+        } catch (error) {
+            console.error(error);
+            toast("Could not create painting!", {
+                description:"Could not create painting", 
+                action:{
+                    label:"Undo", 
+                    onClick:() => console.log("Undo")
+                }
+            })
+        } finally {
+            setLoading(false);
+            setPainting({
+                price: "",
+                paintingName: "",
+                paintingDesc: "",
+                dimension: "",
+                medium:""
+            });
+        }
     }
 
     return (
@@ -72,30 +97,36 @@ const CreatePainting = () => {
                                     <Label htmlFor="name" className="text-right">
                                         Name
                                     </Label>
-                                    <Input id="name" name="name" value={painting.name} onChange={handlePaintingChange} className="col-span-3" />
+                                    <Input id="name" name="paintingName" value={painting.paintingName} onChange={handlePaintingChange} className="col-span-3" />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="username" className="text-right">
+                                    <Label htmlFor="desc" className="text-right">
                                         Description
                                     </Label>
-                                    <Input id="username" name="description" value={painting.description} onChange={handlePaintingChange} className="col-span-3" />
+                                    <Input id="desc" name="paintingDesc" value={painting.paintingDesc} onChange={handlePaintingChange} className="col-span-3" />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="username" className="text-right">
+                                    <Label htmlFor="price" className="text-right">
                                         Price
                                     </Label>
-                                    <Input id="username" name="price" value={painting.price} onChange={handlePaintingChange} className="col-span-3" />
+                                    <Input id="price" name="price" value={painting.price} onChange={handlePaintingChange} className="col-span-3" />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="username" className="text-right">
+                                    <Label htmlFor="dimensions" className="text-right">
                                         Dimensions
                                     </Label>
-                                    <Input id="username" name="dimensions" value={painting.dimensions} onChange={handlePaintingChange} className="col-span-3" />
+                                    <Input id="dimensions" name="dimension" value={painting.dimension} onChange={handlePaintingChange} className="col-span-3" />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="medium" className="text-right">
+                                        Medium
+                                    </Label>
+                                    <Input id="medium" name="medium" value={painting.medium} onChange={handlePaintingChange} className="col-span-3" />
                                 </div>
                             </div>
                             <SheetFooter>
                                 <SheetClose asChild>
-                                    <Button type="submit" onClick={async () => await handleCreate()}>Submit painting</Button>
+                                    <Button type="submit" onClick={async () => await handleCreate()}>{loading?"...":"Submit painting"}</Button>
                                 </SheetClose>
                             </SheetFooter>
                         </SheetContent>

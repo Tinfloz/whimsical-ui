@@ -9,7 +9,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
 
 const GetAllUsers = () => {
 
@@ -28,22 +27,17 @@ const GetAllUsers = () => {
                 <Table className="bg-white overflow-y-scroll rounded-lg">
                     <TableHeader>
                         <TableRow>
+                            <TableHead>User Id</TableHead>
                             <TableHead>User Name</TableHead>
                             <TableHead>User Email</TableHead>
-                            <TableHead className="text-left">Delete</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {user.map((user, index) => (
                             <TableRow key={index}>
+                                <TableCell>{user._id}</TableCell>
                                 <TableCell>{user.userName}</TableCell>
                                 <TableCell>{user.email}</TableCell>
-                                <TableCell className="text-left">
-                                    {/* Add delete button or functionality here */}
-                                    <Button>
-                                        Delete
-                                    </Button>
-                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

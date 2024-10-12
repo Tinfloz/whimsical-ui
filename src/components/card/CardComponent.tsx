@@ -18,23 +18,29 @@ import {
 } from "@/components/ui/popover"
 import { useState } from "react"
 import { Input } from '@/components/ui/input'
-
+import { toast } from 'sonner'
+import axios from "axios"
+import { getConfig } from '@/utils/get.token'
 
 type CardProps = {
     title: string;
     description: string;
     imageSrc: string;
+    dimension:string;
+    price:string;
+    id: string
     screenType: "private" | "public"
 } & React.ComponentProps<typeof Card>
 
-const CardComponent = ({ className, title, description, imageSrc, screenType, ...props }: CardProps) => {
+const CardComponent = ({ className, title, description, dimension, price, imageSrc, screenType, id, ...props }: CardProps) => {
 
     const [cart, setCart] = useState(false);
     const [paintingVals, setPaintingVals] = useState({
-        name:"",
+        paintingName:"",
         price:"",
-        description:"",
-        dimensions:""
+        paintingDesc:"",
+        dimension:"",
+        medium:""
     })
 
     const handleChangePainting = (e:ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +58,26 @@ const CardComponent = ({ className, title, description, imageSrc, screenType, ..
             return acc
         },{})
         console.log(submitObject)
-        //TODO: call edit api
+        try {
+            await axios.put(`http://localhost:5001/api/v1/content/update/painting/${id}`, submitObject, getConfig());
+            toast("Updated successfully!", {
+                description:`Updated at ${new Date()}`, 
+                action:{
+                    label:"Undo", 
+                    onClick:() => console.log("Undo")
+                }
+            })
+            window.location.reload();
+        } catch (error) {
+            console.error(error);
+            toast("Update failed!", {
+                description:`Update failed at ${new Date()}`, 
+                action:{
+                    label:"Undo", 
+                    onClick:() => console.log("Undo")
+                }
+            })
+        }
     }
 
     return (
@@ -68,8 +93,8 @@ const CardComponent = ({ className, title, description, imageSrc, screenType, ..
                 <CardFooter>
                     <div className='w-full space-y-4'>
                         <div className='space-x-6'>
-                            <Label className='font-bold text-lg'>₹5000</Label>
-                            <Label className='font-bold text-lg'>5x12</Label>
+                            <Label className='font-bold text-lg'>₹{price}</Label>
+                            <Label className='font-bold text-lg'>{dimension}</Label>
                         </div>
                         {
                             screenType === "public" ? (
@@ -99,8 +124,8 @@ const CardComponent = ({ className, title, description, imageSrc, screenType, ..
                                                         <Label htmlFor="width">Name</Label>
                                                         <Input
                                                             id="width"
-                                                            name="name"
-                                                            value={paintingVals.name}
+                                                            name="paintingName"
+                                                            value={paintingVals.paintingName}
                                                             onChange={handleChangePainting}
                                                             placeholder="Enter a name"
                                                             className="col-span-2 h-8"
@@ -110,8 +135,8 @@ const CardComponent = ({ className, title, description, imageSrc, screenType, ..
                                                         <Label htmlFor="maxWidth">Description</Label>
                                                         <Input
                                                             id="maxWidth"
-                                                            name="description"
-                                                            value={paintingVals.description}
+                                                            name="paintingDesc"
+                                                            value={paintingVals.paintingDesc}
                                                             onChange={handleChangePainting}
                                                             placeholder="Enter a description"
                                                             className="col-span-2 h-8"
@@ -129,11 +154,22 @@ const CardComponent = ({ className, title, description, imageSrc, screenType, ..
                                                         />
                                                     </div>
                                                     <div className="grid grid-cols-3 items-center gap-4">
+                                                        <Label htmlFor="height">Medium</Label>
+                                                        <Input
+                                                            id="height"
+                                                            name="medium"
+                                                            value={paintingVals.medium}
+                                                            onChange={handleChangePainting}
+                                                            placeholder="Enter a medium"
+                                                            className="col-span-2 h-8"
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-3 items-center gap-4">
                                                         <Label htmlFor="maxHeight">Dimensions</Label>
                                                         <Input
                                                             id="maxHeight"
-                                                            name='dimensions'
-                                                            value={paintingVals.dimensions}
+                                                            name='dimension'
+                                                            value={paintingVals.dimension}
                                                             onChange={handleChangePainting}
                                                             placeholder="Enter new dimensions"
                                                             className="col-span-2 h-8"

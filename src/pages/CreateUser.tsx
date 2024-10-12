@@ -45,7 +45,7 @@ const CreateUser = () => {
                 }
             })
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }
 
